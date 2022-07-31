@@ -7,7 +7,7 @@ import './App.css';
  * State declaration for <App />
  */
 interface IState {
-  data: ServerRespond[],
+  data: ServerRespond[],showGraph:boolean
 }
 
 /**
@@ -22,6 +22,7 @@ class App extends Component<{}, IState> {
       // data saves the server responds.
       // We use this state to parse data down to the child element (Graph) as element property
       data: [],
+      showGraph:false,
     };
   }
 
@@ -30,6 +31,11 @@ class App extends Component<{}, IState> {
    */
   renderGraph() {
     return (<Graph data={this.state.data}/>)
+    if (this.state.showGraph) {
+      return (<Graph data={this.state.data}/>)
+    }
+   
+      
   }
 
   /**
@@ -41,6 +47,19 @@ class App extends Component<{}, IState> {
       // Previous data in the state and the new data from server
       this.setState({ data: [...this.state.data, ...serverResponds] });
     });
+    let x = 0;
+    const interval = setInterval(() => {
+      DataStreamer.getData((serverResponds: ServerRespond[]) => {
+        this.setState({
+          data: serverResponds,
+          showGraph: true,
+        });
+      });
+      x++;
+      if (x > 1000) {
+        clearInterval(interval);
+      }
+    }, 100);
   }
 
   /**
